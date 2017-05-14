@@ -16,6 +16,8 @@ class Ptna:
         # self.responder = RandomResponder('Random')
         # Dictionryを生成
         self.dictionary = Dictionary()
+        # Emotionを生成
+        self.emotion = Emotion(self.dictionary)
 
         # RandomResponder を生成
         self.res_random = RandomResponder('Random', self.dictionary)
@@ -33,6 +35,8 @@ class Ptna:
         """
         #return self.responder.response(input)
 
+        self.emotion.update(input)
+
         # 1 から 100 をランダムに生成
         x = random.randint(0, 100)
         # 60以下ならばPatternResponderオブジェクトにする
@@ -45,7 +49,8 @@ class Ptna:
         else:
             self.responder = self.res_what
 
-        return self.responder.response(input)
+        print(self.emotion.mood)
+        return self.responder.response(input, self.emotion.mood)
 
 
     def get_responder_name(self):
@@ -62,3 +67,56 @@ class Ptna:
         """
         return self.name
 
+
+class Emotion:
+    """ピティナの感情モデル"""
+    # 機嫌値の上限/下限と回復値を設定
+    MODE_MIN = -15
+    MODE_MAX = 15
+    MODE_RECOVERY = 0.5
+
+    def __init__(self, dictionary):
+        """
+        Dictionary オブジェクトをdictionaryに格納
+        機嫌値mode を 0 に設定
+        :param dictionary: Dictionaryオブジェクト
+        """
+        self.dictionary = dictionary
+        # 機嫌値を保持ずるインスタンス変数
+        self.mood = 0
+
+    def update(self, input):
+        """
+        ユーザーからの入力をパラメーターinputで受け取り
+        パターン辞書にマッチさせて機嫌値を変動させる
+        :param input: ユーザーからの入力
+        :return: 
+        """
+        # パターン辞書の各行を繰り返しパターンマッチさせる
+        for ptn_item in self.dictionary.pattern:
+            # パターンマッチすればadjust_mode()で機嫌値を変動させる
+            if ptn_item.match(input):
+                self.adjust_mode(ptn_item.modify)
+                break
+
+
+        # 機嫌を徐々に元に戻す処理
+        if self.mood < 0:
+            self.mood += Emotion.MODE_RECOVERY
+        elif self.mood > 0:
+            self.mood -= Emotion.MODE_RECOVERY
+
+
+    def adjust_mode(self, val):
+        """
+        機嫌値を増減させる
+        :param val: 機嫌変動値
+        :return: 
+        """
+        # 機嫌値modeの値を機嫌変動値によって増減する
+        self.mood += int(val)
+        # MODE_MAX と MODE_MINと比較して、機嫌値が取り得る範囲に収める
+        if self.mood > Emotion.MODE_MAX:
+            self.mood = Emotion.MODE_MAX
+        elif self.mood < Emotion.MODE_MIN:
+            self.mood = Emotion.MODE_MIN

@@ -15,10 +15,11 @@ class Responder:
         self.name = name
         self.dictionary = dictionary
 
-    def response(self, input):
+    def response(self, input, mood):
         """
         オーバーライドを前提としたresponsd()メソッド
         :param input: 入力された文字列
+        :param mood: 機嫌値
         :return: 空の文字列
         """
         return ""
@@ -36,10 +37,11 @@ class RepeatResponder(Responder):
     オウム返しのためのサブクラス
     """
 
-    def response(self, input):
+    def response(self, input, mood):
         """
         応答文字列を作って
         :param input: 
+        :param mood: 機嫌値
         :return: 
         """
         return '{}ってなに？'.format(input)
@@ -76,10 +78,11 @@ class RandomResponder(Responder):
 
 
 
-    def response(self, input):
+    def response(self, input, mood):
         """
         応答文字列を作って返す
         :param input: 入力された文字列
+        :param mood: 機嫌値
         :return: リストからランダムに抽出文字列
         """
 
@@ -92,32 +95,50 @@ class PatternResponder(Responder):
     パターンに反応するためのサブクラス
     """
 
-    def response(self, input):
+    def response(self, input, mood):
         """
         パターンにマッチした場合に応答文字列を作って返す
         
         :param input: 入力された文字列
+        :param mood: 機嫌値
         :return: 
         """
         # pattarn['pattern'] と ['phrases'] に対して反復処理
-        for ptn, prs in zip(
-                self.dictionary.pattern['pattern'],
-                self.dictionary.pattern['phrases']
-            ):
-            # インプットされた文字列に対して
-            # パターン(ptnの値)でパターンマッチを行う
-            m = re.search(ptn, input)
+        # for ptn, prs in zip(
+        #         self.dictionary.pattern['pattern'],
+        #         self.dictionary.pattern['phrases']
+        #     ):
+        #
+        #     # インプットされた文字列に対して
+        #     # パターン(ptnの値)でパターンマッチを行う
+        #     m = re.search(ptn, input)
+        #
+        #     # インプットされた文字列がパターンにマッチしている場合
+        #     if m:
+        #         # 応答フレーズ(ptn[1])を　'|'で切り分けて
+        #         # ランダムに1文返す
+        #         resp  = random.choice(prs.split('|'))
+        #         # 抽出した応答フレーズを返す
+        #         # 応答フレーズの中の %match% が埋め込まれている場合
+        #         # インプットされた文字列内のパターンマッチした
+        #         # 文字列に置き換える
+        #         return re.sub('%match%', m.group(), resp)
 
-            # インプットされた文字列がパターンにマッチしている場合
-            if m:
-                # 応答フレーズ(ptn[1])を　'|'で切り分けて
-                # ランダムに1文返す
-                resp  = random.choice(prs.split('|'))
-                # 抽出した応答フレーズを返す
-                # 応答フレーズの中の %match% が埋め込まれている場合
-                # インプットされた文字列内のパターンマッチした
-                # 文字列に置き換える
-                return re.sub('%match%', m.group(), resp)
+        self.resp = None
+        for ptn_item in self.dictionary.pattern:
+            # match()でインプット文字列にパターンマッチを行う
+            m = ptn_item.match(input)
+            # マッチした場合は機嫌値moodを引数にしてchoice()を実行、
+            # 戻り値の応答文字列、またはNoneを取得
+            if (m):
+                self.resp = ptn_item.choice(mood)
+            # choice() の戻り値がNoneでない場合は
+            # 応答例の中の%match%をインプットされた文字列の
+            # マッチした文字列に置き換える
+            if self.resp != None:
+                return re.sub('%match%', m.group(), self.resp)
 
         # パターンマッチしない場合は、ランダム辞書から返す
         return random.choice(self.dictionary.random)
+
+
