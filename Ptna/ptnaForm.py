@@ -8,6 +8,9 @@ response_area = None    # 応答エリアのオブジェクトを保持
 lb = None               # ログ表示用リストボックスを保持
 action = None           # 'オプション' メニューの状態を保持
 ptna = Ptna('ptna')     # Ptnaオブジェクトを保持
+on_canvas = None        # Canvasオブジェクトを保持
+ptyna_images = []       # イメージを保持
+
 
 def putlog(str):
     """
@@ -27,6 +30,29 @@ def prompt():
     if (action.get())==0:
         p += ' : ' + ptna.responder.name
     return p + '> '
+
+def chagImg(img):
+    """
+    画像をセットする関数
+    :param img: 
+    :return: 
+    """
+    canvas.itemconfig(
+        on_canvas,
+        image = ptyna_images[img]
+    )
+
+def change_looks():
+    em = ptna.emotion.mood
+    if -5 <= em <= 5:
+        chagImg(0)
+    elif -10 <= em < -5:
+        chagImg(1)
+    elif -15 <= em < -10:
+        chagImg(2)
+    elif 5 <= em <= 15:
+        chagImg(3)
+
 
 
 def talk():
@@ -50,6 +76,10 @@ def talk():
         putlog('> ' + value)
         # 応答メッセージを引数にしてputlog()を呼ぶ
         putlog(prompt() + response)
+        # 入力エリアをクリア
+        entry.delete(0, tk.END)
+
+    change_looks()
 
 
 #===============================================================================
@@ -58,7 +88,7 @@ def talk():
 
 def run():
     # グローバル変数を使用するための記述
-    global entry, response_area, lb, action
+    global entry, response_area, lb, action, canvas, on_canvas, ptyna_images
 
     # メインウインドウを作成
     root = tk.Tk()
@@ -104,11 +134,24 @@ def run():
 
     canvas.place(x=370, y=0)    # メインウインドウ上に設定
 
-    img = tk.PhotoImage(file='zunko_emote_01.gif')    # 表示するイメージを用意
-    canvas.create_image(
+    # img = tk.PhotoImage(file='zunko_emote_01.gif')    # 表示するイメージを用意
+    # canvas.create_image(
+    #     0,                  # x座標
+    #     0,                  # y座標
+    #     image = img,
+    #     anchor = tk.NW      # 配置の起点となる位置を左上隅に設定
+    # )
+    # 表示するイメージを用意
+    ptyna_images.append(tk.PhotoImage(file= "talk.gif"))
+    ptyna_images.append(tk.PhotoImage(file= "empty.gif"))
+    ptyna_images.append(tk.PhotoImage(file= "angry.gif"))
+    ptyna_images.append(tk.PhotoImage(file= "happy.gif"))
+
+    # キャンパス上にイメージを配置
+    on_canvas = canvas.create_image(
         0,                  # x座標
         0,                  # y座標
-        image = img,
+        image = ptyna_images[0],
         anchor = tk.NW      # 配置の起点となる位置を左上隅に設定
     )
 
