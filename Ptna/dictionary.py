@@ -41,6 +41,31 @@ class Dictionary:
             # self.pattern.setdefault('phrases', []).append(prs)
             self.pattern.append(ParseItem(ptn, prs))
 
+    def study(self, input):
+        """
+        ユーザー発言を学習する
+        :param input: ユーザー発話
+        :return: 
+        """
+        # インプット文字列の改行と空白は取り除いておく
+        input = input.rstrip('\n')
+        # 発言がランダム辞書に存在しなければ
+        # self.random の末尾に追加
+        if not input in self.random:
+            self.random.append(input)
+
+    def save(self):
+        """
+        self.random の内容を丸ごと辞書に書き込む
+        :return: 
+        """
+        # 各要素の末尾に改行を追加する
+        for index, element in enumerate(self.random):
+            self.random[index] = element + '\n'
+        # ランダム辞書に書き込む
+        with open('random.txt', 'w', encoding='utf_8') as f:
+            f.writelines(self.random)
+
 
 class ParseItem:
     SEPARATOR = '^((-?\d+)##)?(.*)$'

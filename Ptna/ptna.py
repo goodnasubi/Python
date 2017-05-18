@@ -50,7 +50,20 @@ class Ptna:
             self.responder = self.res_what
 
         print(self.emotion.mood)
-        return self.responder.response(input, self.emotion.mood)
+        # return self.responder.response(input, self.emotion.mood)
+        # 応答フレーズを生成
+        resp = self.responder.response(input, self.emotion.mood)
+        # 学習メソッドを呼ぶ
+        self.dictionary.study(input)
+        # 応答フレーズを返す
+        return resp
+
+    def save(self):
+        """
+        Dictionaryのsave()を呼ぶ中継メソッド
+        :return: 
+        """
+        self.dictionary.save()
 
 
     def get_responder_name(self):

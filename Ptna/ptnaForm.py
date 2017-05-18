@@ -1,5 +1,8 @@
 import tkinter as tk
+import tkinter.messagebox
 from Ptna.ptna import *
+from datetime import datetime
+
 
 """グローバル変数定義
 """
@@ -10,6 +13,7 @@ action = None           # 'オプション' メニューの状態を保持
 ptna = Ptna('ptna')     # Ptnaオブジェクトを保持
 on_canvas = None        # Canvasオブジェクトを保持
 ptyna_images = []       # イメージを保持
+log = []                # インプット文字列を保持
 
 
 def putlog(str):
@@ -19,6 +23,8 @@ def putlog(str):
     :return: 
     """
     lb.insert(tk.END, str)
+    # インプットと応答をリストlogに追加
+    log.append(str + '\n')
 
 
 def prompt():
@@ -82,6 +88,19 @@ def talk():
     change_looks()
 
 
+def writelog():
+    """
+    ログファイルに辞書を更新した日時を記録
+    :return: 
+    """
+    # 　ログを作成
+    now = 'Ptna System Dialogue Log: ' + datetime.now().strftime('%Y-%m-%d %H:%M:%S' + '\n')
+    log.insert(0, now)
+    # ログファイルへ書き込み
+    with open('log.txt', 'a', encoding='utf_8') as f:
+        f.writelines(log)
+
+
 #===============================================================================
 # 画面を描画する関数
 #===============================================================================
@@ -100,13 +119,33 @@ def run():
     font=('Helevetica', 14)
     font_log=('Helevetica', 11)
 
+    def callback():
+        """
+        終了時の処理
+        :return: 
+        """
+        # メッセージボックスの[OK]ボタンクリック時の処理
+        if tkinter.messagebox.askyesno(
+            'Quit?', 'ランダム辞書を更新していい？'
+        ):
+            ptna.save() # 記憶メソッド実行
+            writelog()  # ログ保存
+            root.destroy()
+        # [キャンセル]ボタンクリック
+        else:
+            root.destroy()
+
+    root.protocol('WM_DELETE_WINDOW', callback)
+
+
+
     # メニューバーの作成
     menubar = tk.Menu(root)
     root.config(menu=menubar)
     # [ファイル]メニュー
     filemenu = tk.Menu(menubar)
     menubar.add_cascade(label='ファイル', menu=filemenu)
-    filemenu.add_command(label='閉じる', command=root.destroy)
+    filemenu.add_command(label='閉じる', command=callback)
     # [オプション]メニュー
     action = tk.IntVar()
     optionmenu = tk.Menu(menubar)
