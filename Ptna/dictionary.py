@@ -1,5 +1,6 @@
 import random
 import re
+from Ptna.analyzer import *
 
 class Dictionary:
     def __init__(self):
@@ -41,18 +42,81 @@ class Dictionary:
             # self.pattern.setdefault('phrases', []).append(prs)
             self.pattern.append(ParseItem(ptn, prs))
 
-    def study(self, input):
+    # def study(self, input):
+    #     """
+    #     ユーザー発言を学習する
+    #     :param input: ユーザー発話
+    #     :return:
+    #     """
+    #     # インプット文字列の改行と空白は取り除いておく
+    #     input = input.rstrip('\n')
+    #     # 発言がランダム辞書に存在しなければ
+    #     # self.random の末尾に追加
+    #     if not input in self.random:
+    #         self.random.append(input)
+
+    def study(self, input, parts):
         """
         ユーザー発言を学習する
         :param input: ユーザー発話
+        :param parts 形態素解析結果
         :return: 
         """
         # インプット文字列の改行と空白は取り除いておく
         input = input.rstrip('\n')
+        ## 発言がランダム辞書に存在しなければ
+
+        # インプット文字列を引数に、ランダム辞書に登録するメソッドを呼ぶ
+        self.study_random(input)
+        # インプット文字列と解析結果を引数に、パターン辞書の登録メソッドを呼ぶ
+        self.study_pattern(input, parts)
+
+
+    def study_random(self, input):
+        """
+        ユーザーの発言を学習する
+        :param input: ユーザーの発言
+        :return: 
+        """
         # 発言がランダム辞書に存在しなければ
         # self.random の末尾に追加
         if not input in self.random:
             self.random.append(input)
+
+
+    def study_pattern(self, input, parts):
+        """
+        ユーザーの発話を学習する
+        :param input: インプット文字列
+        :param parts: 形態素解析の結果（リスト）
+        :return: 
+        """
+        # 多重リストの要素を２つのパラメータに取り出す
+        for word, part in parts:
+            # analyzerのkeyword_check()関数による名詞チェックが、
+            # trueの場合
+            if (keyword_check(part)):
+                depend = False # ParseItemオブジェクトを保持する変数
+                # patternリストのpatternキーを反復処理
+                for ptn_item in self.pattern:
+                    m = re.search(ptn_item.pattern, word)
+                    # インプットされた名詞が既存のパターンとマッチしたら
+                    # patternリストからマッチしたParseItemオブジェクトを取得
+                    if(re.search(ptn_item.pattern, word)):
+                        depend = ptn_item
+                        break # マッチしたら止める
+                # 既存パターンとマッチしたParseItemオブジェクトから
+                # add_phraseを呼ぶ
+                if depend:
+                    depend.add_phrase(input)
+                else:
+                    # 既存パターンに存在しない名詞であれば
+                    # 新規のParseItemオブジェクトを
+                    # patternリストに追加
+                    self.pattern.append(ParseItem(word, input))
+
+
+
 
     def save(self):
         """
@@ -65,6 +129,16 @@ class Dictionary:
         # ランダム辞書に書き込む
         with open('random.txt', 'w', encoding='utf_8') as f:
             f.writelines(self.random)
+
+        # パターン辞書ファイルに書き込むデータを保持するリスト
+        pattern = []
+        for ptn_item in self.pattern:
+            # make_line()で行データ作成
+            pattern.append(ptn_item.make_line() + '\n')
+        #print('パターン辞書に書き込む最終データ', pattern)
+        # パターン辞書ファイルに書き込む
+        with open('pattern.txt', 'w', encoding='utf_8') as f:
+            f.writelines(pattern)
 
 
 class ParseItem:
@@ -153,3 +227,35 @@ class ParseItem:
         # 応答例の数値がマイナスの場合は機嫌値が下回っているか判定
         else:
             return (mood < need)
+
+
+    def add_phrase(self, phrase):
+        """
+        パターン辞書1行分の応答例のみを作る
+        :param phrase: インプット文字列
+        :return: 
+        """
+        # インプット文字列がphrasesリストの応答例に一致するか
+        # self.phrases インプットにマッチした応答フレーズの辞書リスト
+        # [ { 'need'   : 応答例の整数部分, 'phrase'   : 応答例の文字列部分 }, ... ]
+        for p in self.phrases:
+            # 既存の応答例に一致したら終了
+            if p['phrase'] == phrase:
+                return
+
+        # phrasesリストに辞書を追加
+        # { 'need'  : 0, 'phrase' : インプット文字列
+        self.phrases.append({'need': 0, 'phrase' : phrase})
+
+
+    def make_line(self):
+        """
+        パターン辞書1行分のデータを作る
+        :return: 
+        """
+        # 必要機嫌値 + '##' + パターン
+        pattern = str(self.modify) + '##' + self.pattern
+        phrases = []
+        for p in self.phrases:
+            phrases.append(str(p['need']) + '##' + str(p['phrase']))
+        return pattern + '\t' + '|'.join(phrases)

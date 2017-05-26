@@ -1,5 +1,6 @@
 from Ptna.responder import *
 from Ptna.dictionary import *
+from Ptna.analyzer import *
 
 class Ptna:
     """
@@ -34,9 +35,11 @@ class Ptna:
         :return: 応答文字列
         """
         #return self.responder.response(input)
-
+        # 機嫌値を更新
         self.emotion.update(input)
-
+        # インプット文字列を解析
+        parts = analyze(input)
+        #print(parts)
         # 1 から 100 をランダムに生成
         x = random.randint(0, 100)
         # 60以下ならばPatternResponderオブジェクトにする
@@ -54,7 +57,7 @@ class Ptna:
         # 応答フレーズを生成
         resp = self.responder.response(input, self.emotion.mood)
         # 学習メソッドを呼ぶ
-        self.dictionary.study(input)
+        self.dictionary.study(input, parts)
         # 応答フレーズを返す
         return resp
 
