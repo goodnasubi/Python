@@ -1,5 +1,6 @@
 import random
 import re
+from Ptna.analyzer import *
 
 
 class Responder:
@@ -15,11 +16,12 @@ class Responder:
         self.name = name
         self.dictionary = dictionary
 
-    def response(self, input, mood):
+    def response(self, input, mood, parts):
         """
         オーバーライドを前提としたresponsd()メソッド
         :param input: 入力された文字列
         :param mood: 機嫌値
+        :param parts 形態素解析結果のリスト
         :return: 空の文字列
         """
         return ""
@@ -37,11 +39,12 @@ class RepeatResponder(Responder):
     オウム返しのためのサブクラス
     """
 
-    def response(self, input, mood):
+    def response(self, input, mood, parts):
         """
         応答文字列を作って
         :param input: 
         :param mood: 機嫌値
+        :param parts 形態素解析結果のリスト
         :return: 
         """
         return '{}ってなに？'.format(input)
@@ -78,11 +81,12 @@ class RandomResponder(Responder):
 
 
 
-    def response(self, input, mood):
+    def response(self, input, mood, parts):
         """
         応答文字列を作って返す
         :param input: 入力された文字列
         :param mood: 機嫌値
+        :param parts 形態素解析結果のリスト
         :return: リストからランダムに抽出文字列
         """
 
@@ -95,12 +99,13 @@ class PatternResponder(Responder):
     パターンに反応するためのサブクラス
     """
 
-    def response(self, input, mood):
+    def response(self, input, mood, parts):
         """
         パターンにマッチした場合に応答文字列を作って返す
         
         :param input: 入力された文字列
         :param mood: 機嫌値
+        :param parts 形態素解析結果のリスト
         :return: 
         """
         # pattarn['pattern'] と ['phrases'] に対して反復処理
@@ -141,4 +146,43 @@ class PatternResponder(Responder):
         # パターンマッチしない場合は、ランダム辞書から返す
         return random.choice(self.dictionary.random)
 
+
+class TemplateResponder(Responder):
+    """
+    テンプレートに反応するためのサブクラス
+    """
+
+    def response(self, input, mood, parts):
+        """
+        テンプレートを使用して応答フレーズを生成
+        
+        :param input: 入力された文字列
+        :param mood: 機嫌値
+        :param parts 形態素解析結果のリスト
+        :return: 
+        """
+
+        # インプット文字列の名詞の部分のみそ格納するリスト
+        keywords = []
+        # テンプレート本体を格納する変数
+        template = ''
+        # 解析結果partsの「文字列」⇒　word, 「品詞情報」⇒　partに順次格納
+        for word, part in parts:
+            # 名詞であるかをチェックしてkeywordリストに格納
+            if (keyword_check(part)):
+                keywords.append(word)
+        # keywordリストに格納された名刺の数を取得
+        count = len(keywords)
+        # keywordリストに１つ以上の名詞が存在し、
+        # 名詞の数に対応するテンプレートが存在するかをチェック
+        if (count > 0) and (str(count) in self.dictionary.template):
+            # テンプレートリストから名詞の数に対応するテンプレートを
+            # ランダムに抽出
+            template = random.choice(self.dictionary.template[str(count)])
+            # テンプレートの空欄(%noun%)に
+            # keyword に格納されている名詞を埋め込む
+            for word in keywords:
+                template = template.replace('%noun%', word, 1)
+            return template
+        return random.choice(self.dictionary.random)
 

@@ -42,6 +42,38 @@ class Dictionary:
             # self.pattern.setdefault('phrases', []).append(prs)
             self.pattern.append(ParseItem(ptn, prs))
 
+        # テンプレート辞書を保持する辞書
+        self.template = {}
+        # テンプレート辞書ファイルオープン
+        tfile = open('template.txt', 'r', encoding='utf_8')
+        # 各行を要素としてリストに格納
+        t_lines = tfile.readlines()
+        tfile.close()
+
+        # 末尾の改行と空白文字を取り除いて
+        # インスタンス変数（リスト）に格納
+        self.new_t_lines = []
+        for line in t_lines:
+            str = line.rstrip('\n')
+            if (str != ''):
+                self.new_t_lines.append(str)
+
+        # テンプレート辞書の各行をタブで切り分ける
+        # count     %noun%の出現回数
+        # template  テンプレート文字列
+        for line in self.new_t_lines:
+            # テンプレート行をタブで count, temlateに分割
+            count, template = line.split('\t')
+            # print(count)
+            # print(template)
+            # self.templateのキーにcount(出現回数)が存在しなければ
+            # countそキーにして空のリストを要素として追加
+            if not count in self.template:
+                self.template[count] = []
+
+            # countキーのリストにテンプレート文字列を追加
+            self.template[count].append(template)
+
     # def study(self, input):
     #     """
     #     ユーザー発言を学習する
@@ -70,6 +102,8 @@ class Dictionary:
         self.study_random(input)
         # インプット文字列と解析結果を引数に、パターン辞書の登録メソッドを呼ぶ
         self.study_pattern(input, parts)
+
+        self.study_template(parts)
 
 
     def study_random(self, input):
@@ -117,6 +151,33 @@ class Dictionary:
 
 
 
+    def study_template(self, parts):
+        """
+        テンプレートを学習する
+        :param parts: 形態素解析の結果（リスト）
+        :return: 
+        """
+        template = ''
+        count = 0
+        for word, part in parts:
+            # 名詞であるかをｖチェック
+            if (keyword_check(part)):
+                word = '%noun%'
+                count += 1
+            template += word
+
+        # self.template のキーにcount(出現回数)が存在しなければ
+        # count をキーにして空のリスト要素として追加
+        if count > 0:
+            count = str(count)
+            if not count in self.template:
+                self.template[count] = []
+            # countキーのリストにテンプレート文字列を追加
+            if not template in self.template[count]:
+                self.template[count].append(template)
+
+        print('出来上がったテンプレート===', self.template)
+
 
     def save(self):
         """
@@ -139,6 +200,22 @@ class Dictionary:
         # パターン辞書ファイルに書き込む
         with open('pattern.txt', 'w', encoding='utf_8') as f:
             f.writelines(pattern)
+
+        template = []
+        # self.template のすべてのキーと値のペアを取得して
+        # 反復処理を行う
+        for key, val in self.template.items():
+            # 値のリストをイテレートし
+            # 「キー　＋　タブ　＋　リストの個々の要素　＋　改行」の1行を作る
+            for v in val:
+                template.append(key + '\t' + v + '\n')
+        # リスト内のテンプレートをソート
+        template.sort()
+        # テンプレート辞書ファイルに書き込む
+        with open('template.txt', 'w', encoding='utf_8') as f:
+            f.writelines(template)
+
+
 
 
 class ParseItem:

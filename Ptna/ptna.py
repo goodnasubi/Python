@@ -26,6 +26,9 @@ class Ptna:
         self.res_what = RepeatResponder('Repeat?', self.dictionary)
         # PatternResponder を生成
         self.res_pattern = PatternResponder('Pattern', self.dictionary)
+        # TemplateResponderを生成
+        self.res_template = TemplateResponder('Template', self.dictionary)
+
 
     def dialogue(self, input):
         """
@@ -42,11 +45,14 @@ class Ptna:
         #print(parts)
         # 1 から 100 をランダムに生成
         x = random.randint(0, 100)
-        # 60以下ならばPatternResponderオブジェクトにする
-        if x <= 60:
+        # 40以下ならばPatternResponderオブジェクトにする
+        if x <= 40:
             self.responder = self.res_pattern
-        # 61～90 以下ならばRandomResponderオブジェクトにする
-        elif 61 <= x <= 90:
+        # 41～70以下ならTemplateResponder オブジェクトにずる
+        elif 41 <= x <= 70:
+            self.responder = self.res_template
+        # 71～90 以下ならばRandomResponderオブジェクトにする
+        elif 71 <= x <= 90:
             self.responder = self.res_random
         # それ以外はRepeatResponderオブジェクトにする
         else:
@@ -55,7 +61,7 @@ class Ptna:
         print(self.emotion.mood)
         # return self.responder.response(input, self.emotion.mood)
         # 応答フレーズを生成
-        resp = self.responder.response(input, self.emotion.mood)
+        resp = self.responder.response(input, self.emotion.mood, parts)
         # 学習メソッドを呼ぶ
         self.dictionary.study(input, parts)
         # 応答フレーズを返す
