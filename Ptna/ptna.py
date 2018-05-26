@@ -1,6 +1,6 @@
-from Ptna.responder import *
-from Ptna.dictionary import *
-from Ptna.analyzer import *
+from responder import *
+from dictionary import *
+from analyzer import *
 
 class Ptna:
     """

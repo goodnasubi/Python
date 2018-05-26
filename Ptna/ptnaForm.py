@@ -1,6 +1,6 @@
 import tkinter as tk
 import tkinter.messagebox
-from Ptna.ptna import *
+from ptna import *
 from datetime import datetime
 
 
@@ -213,11 +213,15 @@ def run():
         borderwidth = 4
     )
 
+    def enter_key(event):
+        talk()
+
     entry = tk.Entry(
         frame,
         width = 70,
         font = font
     )
+    entry.bind("<Return>", enter_key)
     entry.pack(side = tk.LEFT)
     entry.focus_set()
     # ボタンの作成

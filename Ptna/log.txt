@@ -1,0 +1,55 @@
+Ptna System Dialogue Log: 2018-05-27 03:16:19
+> おっは～
+ptna : Repeat?> おっは～ってなに？
+> あいさつだよ
+ptna : Pattern> それいいじゃない
+> そうかい
+ptna : Pattern> 何か忘れてることない？
+> ご飯を食べるのを忘れた
+ptna : Pattern> ラーメンでいい？
+> いいよ
+ptna : Template> カバ
+> あっ
+ptna : Repeat?> あっってなに？
+> 可愛いね
+ptna : Repeat?> 可愛いねってなに？
+> かわいいね
+ptna : Pattern> かわいいってホント！？ホントに！？
+> ほんと
+ptna : Repeat?> ほんとってなに？
+> ご飯食べたいよ
+ptna : Pattern> ご飯を食べるのを忘れた
+Ptna System Dialogue Log: 2018-05-27 03:17:54
+> おっは～
+ptna : Pattern> おっは～
+> かわいいね
+ptna : Pattern> かわいいってホント！？ホントに！？
+> 可愛いね
+ptna : Random> 食いに行こう
+Ptna System Dialogue Log: 2018-05-27 03:48:45
+> おはよう
+ptna : Random> おっは～
+> ラーメン
+ptna : Repeat?> ラーメンってなに？
+> 食べたい
+ptna : Template> 今日の映画は、面白かった
+> そうだね
+ptna : Pattern> あなたはお鍋大好き鍋パーティピーポー
+> すきすき
+ptna : Random> おおっ
+> 奇麗だね
+ptna : Random> えーーー
+> 可愛いね
+ptna : Repeat?> 可愛いねってなに？
+> かわいいね
+ptna : Random> よかったね
+> ばいばい
+ptna : Pattern> ごきげんよう
+> さようなら
+ptna : Template> よかったね
+> えーー
+ptna : Repeat?> えーーってなに？
+> えー
+ptna : Template> ロック好き？
+> 好き好き
+ptna : Template> 好きみたいな人だね

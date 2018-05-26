@@ -1,6 +1,6 @@
 import random
 import re
-from Ptna.analyzer import *
+from analyzer import *
 
 
 class Responder:
