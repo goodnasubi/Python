@@ -193,3 +193,26 @@ print(' '.join(sent2tokens(example_sent)))
 print("Predicted:", ' '.join(tagger.tag(sent2features(example_sent))))
 print("Correct:  ", ' '.join(sent2labels(example_sent)))
 
+
+def bio_classification_report(y_true, y_pred):
+    lb = LabelBinarizer()
+    y_true_combined = lb.fit_transform(list(chain.from_iterable(y_true)))
+    y_pred_combined = lb.transform(list(chain.from_iterable(y_pred)))
+
+    tagset = set(lb.classes_) - {'O'}
+    tagset = sorted(tagset, key=lambda tag: tag.split('-', 1)[::-1])
+    class_indices = {cls: idx for idx, cls in enumerate(lb.classes_)}
+
+    return classification_report(
+        y_true_combined,
+        y_pred_combined,
+        labels = [class_indices[cls] for cls in tagset],
+        target_names = tagset,
+    )
+
+y_pred = [tagger.tag(xseq) for xseq in X_test]
+
+print(bio_classification_report(y_test, y_pred))
+
+
+tagger.dump('model.dump.txt')
